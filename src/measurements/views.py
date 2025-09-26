@@ -3,41 +3,37 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import CreateUserForm, CustomAuthenticationForm
-from .decorators import unauthenticated_user
+from .decorators import unauthenticated_user, allowed_users
+from .models import User
 
 
 @unauthenticated_user
 def register(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CreateUserForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Usuário criado com sucesso!')
-            return redirect('login')
+            user = form.save()
+            messages.success(request, "Usuário criado com sucesso!")
+            login(request, user)
+            return redirect("home")
     else:
         form = CreateUserForm()
-
-    return render(request, 'measurements/register.html', {'form': form})
+    return render(request, "measurements/register.html", {"form": form})
 
 
 @unauthenticated_user
 def login_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            login_field = form.cleaned_data.get('username')  # username agora é login
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=login_field, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f'Bem-vindo, {user.name}!')
-                return redirect('home')
-            else:
-                messages.error(request, 'Usuário ou senha inválidos')
+            user = form.get_user()
+            login(request, user)
+            return redirect("home")
+        else:
+            messages.error(request, "Login ou senha inválidos.")
     else:
         form = CustomAuthenticationForm()
-
-    return render(request, 'measurements/login.html', {'form': form})
+    return render(request, "measurements/login.html", {"form": form})
 
 
 def logout_view(request):
@@ -57,11 +53,13 @@ def manager(request):
 
 
 @login_required
+@allowed_users(allowed_roles=["Engenheiro"])
 def engineer(request):
     return render(request, 'measurements/engineer.html')
 
 
 @login_required
+@allowed_users(allowed_roles=["Gerente"])
 def dashboard(request):
     return render(request, 'measurements/dashboard.html')
 

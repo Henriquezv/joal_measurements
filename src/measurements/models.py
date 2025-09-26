@@ -2,7 +2,14 @@ from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 )
+from django.contrib.auth.models import Group
 
+
+class MeasurementsGroup(Group):
+    class Meta:
+        proxy = True
+        verbose_name = "Measurement Group"
+        verbose_name_plural = "Measurement Groups"
 
 class CompanyRole(models.TextChoices):
     AUXILIAR_ENGENHARIA = "AuxiliarEngenharia", "Auxiliar de Engenharia"
