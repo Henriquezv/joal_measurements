@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import CreateUserForm, CustomAuthenticationForm
+from .forms import CreateUserForm, CustomAuthenticationForm, MeasurementForm
 from .decorators import unauthenticated_user, allowed_users
-from .models import User
+from .models import User, Measurement, MeasurementStatus
+
 
 
 @unauthenticated_user
@@ -44,8 +45,32 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    return render(request, 'measurements/home.html')
+    engenheiro_meds = Measurement.objects.filter(status=MeasurementStatus.IN_PROGRESS)
+    gerente_meds = Measurement.objects.filter(status=MeasurementStatus.PENDING_MANAGER)
+    diretor_meds = Measurement.objects.filter(status=MeasurementStatus.PENDING_DIRECTOR)
+    finished_meds = Measurement.objects.filter(status=MeasurementStatus.FINISHED)
 
+    context = {
+        "engenheiro_meds": engenheiro_meds,
+        "gerente_meds": gerente_meds,
+        "diretor_meds": diretor_meds,
+        "finished_meds": finished_meds,
+    }
+    return render(request, "measurements/home.html", context)
+
+
+def createMeasurement(request):
+    if request.method == "POST":
+        form = MeasurementForm(request.POST)
+        if form.is_valid():
+            measurement = form.save(commit=False)
+            measurement.created_by = request.user
+            measurement.status = "InProgress" 
+            measurement.save()
+            return redirect("home")
+    else:
+        form = MeasurementForm()
+    return render(request, "measurements/create_measurement.html", {"form": form})
 
 @login_required
 def manager(request):

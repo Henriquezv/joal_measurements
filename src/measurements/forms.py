@@ -4,7 +4,8 @@ from django.contrib.auth.forms import (
     UserChangeForm,
     AuthenticationForm,
 )
-from .models import User, MeasurementsGroup
+from .models import User, MeasurementsGroup, Measurement
+
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -46,3 +47,17 @@ class CustomAuthenticationForm(AuthenticationForm):
         label="Senha",
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Digite sua senha"}),
     )
+
+
+class MeasurementForm(forms.ModelForm):
+    class Meta:
+        model = Measurement
+        fields = ["name", "start_date", "value", "discounts", "discounts_detail", "final_value"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "start_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "value": forms.NumberInput(attrs={"class": "form-control"}),
+            "discounts": forms.NumberInput(attrs={"class": "form-control"}),
+            "discounts_detail": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
+            "final_value": forms.NumberInput(attrs={"class": "form-control"}),
+        }
