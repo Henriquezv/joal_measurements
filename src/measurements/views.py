@@ -59,17 +59,20 @@ def home(request):
     return render(request, "measurements/home.html", context)
 
 
-def createMeasurement(request):
+@login_required
+def create_measurement(request):
     if request.method == "POST":
-        form = MeasurementForm(request.POST)
+        form = MeasurementForm(request.POST, request.FILES)
         if form.is_valid():
             measurement = form.save(commit=False)
             measurement.created_by = request.user
-            measurement.status = "InProgress" 
+            measurement.status = MeasurementStatus.IN_PROGRESS
             measurement.save()
+            messages.success(request, "Medição criada com sucesso!")
             return redirect("home")
     else:
         form = MeasurementForm()
+
     return render(request, "measurements/create_measurement.html", {"form": form})
 
 @login_required

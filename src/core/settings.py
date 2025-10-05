@@ -37,8 +37,45 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ckeditor_5',
     'measurements',
 ]
+
+CKEDITOR_5_UPLOAD_PATH = "uploads/"
+CKEDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor_upload_file"
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            {'name': 'styles', 'items': [
+                'heading', '|', 'bold', 'italic', 'underline', 'strikethrough', 'link'
+            ]},
+            {'name': 'paragraph', 'items': [
+                'bulletedList', 'numberedList', 'blockQuote', '|', 'outdent', 'indent'
+            ]},
+            {'name': 'insert', 'items': [
+                'imageUpload', 'insertTable', 'mediaEmbed', 'undo', 'redo'
+            ]},
+        ],
+        'image': {
+            'toolbar': [
+                'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+            ],
+        },
+        'table': {
+            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells']
+        },
+        'height': 500,  # altura em pixels
+        'width': '100%',  # ocupa toda a largura
+        'extraPlugins': ['uploadimage'],  # garante colagem/drag-drop
+    }
+}
+
+# Static & Media
+STATIC_URL = '/static/'
+# Pasta onde collectstatic vai colocar os arquivos (necessário para collectstatic)
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'   
@@ -86,6 +123,8 @@ DATABASES = {
     }
 }
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

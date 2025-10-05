@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import (
-    AbstractBaseUser, PermissionsMixin, BaseUserManager
+    AbstractBaseUser, PermissionsMixin, BaseUserManager, Group
 )
-from django.contrib.auth.models import Group
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class MeasurementsGroup(Group):
@@ -74,13 +74,19 @@ class MeasurementStatus(models.TextChoices):
 
 class Measurement(models.Model):
     name = models.CharField(max_length=255)
+    contract = models.CharField(max_length=255, blank=True, null=True)  # substituído por campo simples
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
+
+    description = CKEditor5Field('Descrição', config_name='default', blank=True, null=True)
+    attachment = models.FileField(upload_to="measurements/files/", blank=True, null=True)
+
     value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discounts = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discounts_detail = models.TextField(blank=True, null=True)
     final_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     payment_date = models.DateField(blank=True, null=True)
+
     status = models.CharField(
         max_length=50,
         choices=MeasurementStatus.choices,

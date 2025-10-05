@@ -4,8 +4,8 @@ from django.contrib.auth.forms import (
     UserChangeForm,
     AuthenticationForm,
 )
+from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import User, MeasurementsGroup, Measurement
-
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -52,12 +52,24 @@ class CustomAuthenticationForm(AuthenticationForm):
 class MeasurementForm(forms.ModelForm):
     class Meta:
         model = Measurement
-        fields = ["name", "start_date", "value", "discounts", "discounts_detail", "final_value"]
+        fields = [
+            "name",
+            "contract",
+            "start_date",
+            "value",
+            "discounts",
+            "discounts_detail",
+            "final_value",
+            "description",
+            "attachment",
+        ]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
+            "contract": forms.TextInput(attrs={"class": "form-control"}),
             "start_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "value": forms.NumberInput(attrs={"class": "form-control"}),
             "discounts": forms.NumberInput(attrs={"class": "form-control"}),
             "discounts_detail": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
             "final_value": forms.NumberInput(attrs={"class": "form-control"}),
+            "description": CKEditor5Widget(config_name="default"),
         }
