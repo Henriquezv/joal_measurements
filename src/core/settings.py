@@ -42,40 +42,35 @@ INSTALLED_APPS = [
 ]
 
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
-CKEDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor_upload_file"
+CKEDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor_upload_file"  
+CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+CKEDITOR_5_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
 
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': [
-            {'name': 'styles', 'items': [
-                'heading', '|', 'bold', 'italic', 'underline', 'strikethrough', 'link'
-            ]},
-            {'name': 'paragraph', 'items': [
-                'bulletedList', 'numberedList', 'blockQuote', '|', 'outdent', 'indent'
-            ]},
-            {'name': 'insert', 'items': [
-                'imageUpload', 'insertTable', 'mediaEmbed', 'undo', 'redo'
-            ]},
+            {'name': 'styles', 'items': ['heading', '|', 'bold', 'italic', 'underline', 'link']},
+            {'name': 'paragraph', 'items': ['bulletedList', 'numberedList', 'blockQuote', '|', 'outdent', 'indent']},
+            {'name': 'insert', 'items': ['uploadImage', 'insertTable', 'mediaEmbed', '|', 'undo', 'redo']},
         ],
         'image': {
-            'toolbar': [
-                'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
-            ],
+            'toolbar': ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'],
         },
         'table': {
             'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells']
         },
-        'height': 500,  # altura em pixels
-        'width': '100%',  # ocupa toda a largura
-        'extraPlugins': ['uploadimage'],  # garante colagem/drag-drop
+        'height': 400,
+        'width': '100%',
     }
 }
 
-# Static & Media
 STATIC_URL = '/static/'
-# Pasta onde collectstatic vai colocar os arquivos (necessário para collectstatic)
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'   
