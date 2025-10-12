@@ -17,9 +17,11 @@
                         {% for measurement in engenheiro_meds %}
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h6 class="card-title">{{ measurement.name }}</h6>
-                                    <span class="badge bg-secondary">{{ measurement.start_date }}</span>
-                                    <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                    <a href="{% url 'view_measurement' measurement.pk %}" class="text-decoration-none text-dark">
+                                        <h6 class="card-title">{{ measurement.name }}</h6>
+                                        <span class="badge bg-secondary">{{ measurement.start_date }}</span>
+                                        <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                    </a>
                                 </div>
                             </div>
                         {% endfor %}

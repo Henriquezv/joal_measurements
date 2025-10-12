@@ -79,6 +79,17 @@
 <!-- CKEditor bundle -->
 <script src="{% static 'django_ckeditor_5/dist/bundle.js' %}"></script>
 
-<!-- Script customizado -->
-<script src="{% static 'src/app.js' %}"></script>
+<script>
+ClassicEditor
+    .create(document.querySelector('#id_description'), {
+        simpleUpload: {
+            uploadUrl: '/ckeditor5/image_upload/', 
+            withCredentials: false,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            }
+        }
+    })
+    .catch(error => console.error(error));
+</script>
 {% endblock %}

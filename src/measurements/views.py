@@ -5,6 +5,11 @@ from django.contrib.auth.decorators import login_required
 from .forms import CreateUserForm, CustomAuthenticationForm, MeasurementForm
 from .decorators import unauthenticated_user, allowed_users
 from .models import User, Measurement, MeasurementStatus
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import json
 
 
 
@@ -95,3 +100,29 @@ def dashboard(request):
 @login_required
 def board(request):
     return render(request, 'measurements/board.html')
+
+@login_required
+def view_measurement(request, pk):
+    measurement = Measurement.objects.get(pk=pk)
+    return render(request, "measurements/view_measurement.html", {"measurement": measurement})
+
+@login_required
+def edit_measurement(request, pk):
+    measurement = Measurement.objects.get(pk=pk)
+    if request.method == "POST":
+        measurement.description = request.POST.get("description")
+        measurement.save()
+        return redirect("view_measurement", pk=pk)
+    return render(request, "measurements/edit_measurement.html", {"measurement": measurement})
+
+@csrf_exempt
+def ckeditor_upload(request):
+    if request.method == "POST" and request.FILES.get("upload"):
+        upload = request.FILES["upload"]
+        file_path = default_storage.save(f"uploads/{upload.name}", ContentFile(upload.read()))
+        file_url = f"/media/{file_path}"
+
+        return JsonResponse({
+            "url": file_url
+        })
+    return JsonResponse({"error": "Invalid upload request"}, status=400)

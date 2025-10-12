@@ -38,13 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_ckeditor_5',
+    'corsheaders',
     'measurements',
 ]
 
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
-CKEDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor_upload_file"  
-CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 CKEDITOR_5_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_5_IMAGE_BACKEND = "pillow"
+CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
 
 CKEDITOR_5_CONFIGS = {
@@ -65,6 +66,10 @@ CKEDITOR_5_CONFIGS = {
     }
 }
 
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -77,6 +82,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
