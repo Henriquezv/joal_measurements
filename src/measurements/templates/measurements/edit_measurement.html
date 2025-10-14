@@ -1,6 +1,5 @@
 {% extends 'measurements/main.html' %}
 {% load static %}
-
 {% block title %}Editar Medição{% endblock %}
 
 {% block content %}
@@ -9,29 +8,20 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <textarea name="description" id="id_description">{{ measurement.description|safe }}</textarea>
+        
+        <div class="mb-3">
+            <label for="id_description" class="form-label">Descrição</label>
+            {{ form.description }}
+        </div>
 
         <div class="text-end mt-3">
             <a href="{% url 'view_measurement' measurement.pk %}" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'delete_measurement' measurement.pk %}" class="btn btn-danger ms-2"
+               onclick="return confirm('Tem certeza que deseja apagar esta medição?');">Apagar</a>
         </div>
     </form>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'django_ckeditor_5/dist/bundle.js' %}"></script>
-<script>
-ClassicEditor
-    .create(document.querySelector('#id_description'), {
-        simpleUpload: {
-            uploadUrl: '/ckeditor5/image_upload/',
-            withCredentials: false,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            }
-        }
-    })
-    .catch(error => console.error(error));
-</script>
+{{ form.media }}
 {% endblock %}

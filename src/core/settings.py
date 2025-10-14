@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_ckeditor_5',
     'corsheaders',
+    'django_extensions',
     'measurements',
 ]
 

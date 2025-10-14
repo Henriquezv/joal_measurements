@@ -1,0 +1,13 @@
+{% extends 'measurements/main.html' %}
+{% block title %}Excluir Medição{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h3>Tem certeza que deseja excluir a medição "{{ measurement.name }}"?</h3>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3">Sim, excluir</button>
+        <a href="{% url 'view_measurement' measurement.pk %}" class="btn btn-secondary mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -108,12 +108,30 @@ def view_measurement(request, pk):
 
 @login_required
 def edit_measurement(request, pk):
+    measurement = get_object_or_404(Measurement, pk=pk)
+
+    if request.method == "POST":
+        form = MeasurementForm(request.POST, request.FILES, instance=measurement)
+        if form.is_valid():
+            form.save()
+            return redirect("view_measurement", pk=measurement.pk)
+    else:
+        form = MeasurementForm(instance=measurement)
+
+    return render(request, "measurements/edit_measurement.html", {
+        "form": form,
+        "measurement": measurement,
+    })
+
+@login_required
+def delete_measurement(request, pk):
     measurement = Measurement.objects.get(pk=pk)
     if request.method == "POST":
-        measurement.description = request.POST.get("description")
-        measurement.save()
-        return redirect("view_measurement", pk=pk)
-    return render(request, "measurements/edit_measurement.html", {"measurement": measurement})
+        measurement.delete()
+        messages.success(request, "Medição excluída com sucesso!")
+        return redirect("home")
+    
+    return render(request, "measurements/confirm_delete.html", {"measurement": measurement})
 
 @csrf_exempt
 def ckeditor_upload(request):
