@@ -4,24 +4,119 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Editar descrição: {{ measurement.name }}</h2>
+    <h2 class="mb-4">Editar Medição: {{ measurement.name }}</h2>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
-        
+        {{ form.media }}
+
+        {# Mensagens de erro não-campo #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="text-danger small">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.contract.label_tag }}
+                {{ form.contract }}
+                {% if form.contract.errors %}
+                    <div class="text-danger small">{{ form.contract.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <div class="text-danger small">{{ form.start_date.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.value.label_tag }}
+                {{ form.value }}
+                {% if form.value.errors %}
+                    <div class="text-danger small">{{ form.value.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
+                {{ form.final_value.label_tag }}
+                {{ form.final_value }}
+                {% if form.final_value.errors %}
+                    <div class="text-danger small">{{ form.final_value.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="mb-3">
-            <label for="id_description" class="form-label">Descrição</label>
+            {{ form.discounts_detail.label_tag }}
+            {{ form.discounts_detail }}
+            {% if form.discounts_detail.errors %}
+                <div class="text-danger small">{{ form.discounts_detail.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descrição</label>
             {{ form.description }}
+            {% if form.description.errors %}
+                <div class="text-danger small">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Anexo</label>
+            {% if measurement.attachment %}
+                <div class="mb-2">
+                    <a href="{{ measurement.attachment.url }}" target="_blank">
+                        {{ attachment_filename }}
+                    </a>
+                    <button type="submit" name="remove_attachment" class="btn btn-sm btn-danger ms-2"
+                        onclick="return confirm('Deseja realmente remover o anexo?')">
+                        Remover
+                    </button>
+                </div>
+            {% endif %}
+            {{ form.attachment }}
+            {% if form.attachment.errors %}
+                <div class="text-danger small">{{ form.attachment.errors }}</div>
+            {% endif %}
         </div>
 
         <div class="text-end mt-3">
             <a href="{% url 'view_measurement' measurement.pk %}" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-primary">Salvar</button>
             <a href="{% url 'delete_measurement' measurement.pk %}" class="btn btn-danger ms-2"
-               onclick="return confirm('Tem certeza que deseja apagar esta medição?');">Apagar</a>
+               onclick="return confirm('Tem certeza que deseja apagar esta medição?');">
+               Apagar
+            </a>
         </div>
     </form>
 </div>
+{% endblock %}
 
-{{ form.media }}
+{% block extra_js %}
+<script>
+ClassicEditor
+    .create(document.querySelector('#id_description'), {
+        simpleUpload: {
+            uploadUrl: '/ckeditor5/image_upload/',
+            withCredentials: false,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            }
+        }
+    })
+    .catch(error => console.error(error));
+</script>
 {% endblock %}

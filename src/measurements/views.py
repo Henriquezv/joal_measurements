@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import json
+import os
 
 
 
@@ -110,17 +111,39 @@ def view_measurement(request, pk):
 def edit_measurement(request, pk):
     measurement = get_object_or_404(Measurement, pk=pk)
 
-    if request.method == "POST":
+    # calcula nome amigável do anexo (basename)
+    attachment_filename = None
+    if measurement.attachment:
+        attachment_filename = os.path.basename(measurement.attachment.name)
+
+    if request.method == 'POST':
+        # botão "Remover anexo" -> trata e volta para a mesma página de edição
+        if 'remove_attachment' in request.POST:
+            if measurement.attachment:
+                measurement.attachment.delete(save=False)
+                measurement.attachment = None
+                measurement.save()
+                messages.success(request, "Anexo removido com sucesso.")
+            return redirect('edit_measurement', pk=pk)
+
+        # submeter edição (inclui arquivos)
         form = MeasurementForm(request.POST, request.FILES, instance=measurement)
         if form.is_valid():
             form.save()
-            return redirect("view_measurement", pk=measurement.pk)
+            messages.success(request, "Medição atualizada com sucesso.")
+            return redirect('view_measurement', pk=measurement.pk)
+        else:
+            # se invalid, recalcula nome do anexo para exibir novamente
+            if measurement.attachment:
+                attachment_filename = os.path.basename(measurement.attachment.name)
+            messages.error(request, "Erros no formulário. Verifique os campos.")
     else:
         form = MeasurementForm(instance=measurement)
 
-    return render(request, "measurements/edit_measurement.html", {
-        "form": form,
-        "measurement": measurement,
+    return render(request, 'measurements/edit_measurement.html', {
+        'form': form,
+        'measurement': measurement,
+        'attachment_filename': attachment_filename,
     })
 
 @login_required
