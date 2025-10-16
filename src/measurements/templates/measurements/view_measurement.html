@@ -7,7 +7,10 @@
 
     <div class="mb-3">
         <strong>Contrato:</strong> {{ measurement.contract|default:"-" }}<br>
-        <strong>Data Inicial:</strong> {{ measurement.start_date }}<br>
+        <strong>Data de Criação:</strong> {{ measurement.start_date|date:"d/m/Y" }}<br>
+        <strong>Data de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default:"Não definida" }}<br>
+        <strong>Valor Desconto:</strong> {{ measurement.discounts|default:"-" }}<br>
+        <strong>Detalhes do Desconto:</strong> {{ measurement.discounts_detail|default:"-" }}<br>
         <strong>Valor Final:</strong> {{ measurement.final_value|default:"-" }}
     </div>
 
@@ -32,6 +35,35 @@
     </div>
     {% endif %}
 
+
+    <hr>
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <strong>Chat da Medição</strong>
+        </div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+            {% if messages_list %}
+                {% for msg in messages_list %}
+                    <div class="mb-2">
+                        <strong>{{ msg.user.name }}</strong>
+                        <small class="text-muted">— {{ msg.created_at|date:"d/m/Y H:i" }}</small>
+                        <p class="mb-1">{{ msg.message|linebreaksbr }}</p>
+                        <hr class="my-1">
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">Nenhuma mensagem ainda.</p>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.message }}
+                <button type="submit" class="btn btn-primary btn-sm mt-2">Enviar</button>
+            </form>
+        </div>
+    </div>
+    
     <div class="mt-4 text-end">
         <a href="{% url 'home' %}" class="btn btn-secondary">Voltar</a>
     </div>

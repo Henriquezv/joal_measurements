@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import CreateUserForm, CustomAuthenticationForm, MeasurementForm
+from .forms import CreateUserForm, CustomAuthenticationForm, MeasurementForm, MeasurementMessageForm
 from .decorators import unauthenticated_user, allowed_users
 from .models import User, Measurement, MeasurementStatus
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from datetime import date
 import json
 import os
 
@@ -73,6 +74,7 @@ def create_measurement(request):
             measurement = form.save(commit=False)
             measurement.created_by = request.user
             measurement.status = MeasurementStatus.IN_PROGRESS
+            measurement.start_date = date.today()  # define automaticamente a data inicial
             measurement.save()
             messages.success(request, "Medição criada com sucesso!")
             return redirect("home")
@@ -104,8 +106,30 @@ def board(request):
 
 @login_required
 def view_measurement(request, pk):
-    measurement = Measurement.objects.get(pk=pk)
-    return render(request, "measurements/view_measurement.html", {"measurement": measurement})
+    measurement = get_object_or_404(Measurement, pk=pk)
+    from .forms import MeasurementMessageForm
+    from .models import MeasurementMessage
+
+    # Trata envio de nova mensagem
+    if request.method == "POST":
+        form = MeasurementMessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.measurement = measurement
+            msg.user = request.user
+            msg.save()
+            return redirect("view_measurement", pk=pk)
+    else:
+        form = MeasurementMessageForm()
+
+    messages_list = measurement.messages.select_related("user").all()
+
+    context = {
+        "measurement": measurement,
+        "form": form,
+        "messages_list": messages_list,
+    }
+    return render(request, "measurements/view_measurement.html", context)
 
 @login_required
 def edit_measurement(request, pk):

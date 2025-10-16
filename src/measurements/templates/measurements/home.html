@@ -19,8 +19,8 @@
                                 <div class="card-body">
                                     <a href="{% url 'view_measurement' measurement.pk %}" class="text-decoration-none text-dark">
                                         <h6 class="card-title">{{ measurement.name }}</h6>
-                                        <span class="badge bg-secondary">{{ measurement.start_date }}</span>
-                                        <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                        <span class="badge bg-secondary">{{ measurement.payment_date|date:"d/m/Y"|default:"Sem data" }}</span>
+                                        <span class="badge bg-success float-end">{{ measurement.contract|default:"Sem contrato" }}</span>
                                     </a>
                                 </div>
                             </div>
@@ -44,8 +44,12 @@
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <h6 class="card-title">{{ measurement.name }}</h6>
-                                    <span class="badge bg-secondary">{{ measurement.start_date }}</span>
-                                    <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                    <span class="badge bg-secondary">
+                                        {{ measurement.payment_date|date:"d/m/Y"|default:"Sem data" }}
+                                    </span>
+                                    <span class="badge bg-success float-end">
+                                        {{ measurement.contract|default:"Sem contrato" }}
+                                    </span>
                                 </div>
                             </div>
                         {% endfor %}
@@ -68,8 +72,12 @@
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <h6 class="card-title">{{ measurement.name }}</h6>
-                                    <span class="badge bg-secondary">{{ measurement.start_date }}</span>
-                                    <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                    <span class="badge bg-secondary">
+                                        {{ measurement.payment_date|date:"d/m/Y"|default:"Sem data" }}
+                                    </span>
+                                    <span class="badge bg-success float-end">
+                                        {{ measurement.contract|default:"Sem contrato" }}
+                                    </span>
                                 </div>
                             </div>
                         {% endfor %}
@@ -92,8 +100,12 @@
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <h6 class="card-title">{{ measurement.name }}</h6>
-                                    <span class="badge bg-secondary">{{ measurement.start_date }}</span>
-                                    <span class="badge bg-success float-end">{{ measurement.final_value|default:"-" }}</span>
+                                    <span class="badge bg-secondary">
+                                        {{ measurement.payment_date|date:"d/m/Y"|default:"Sem data" }}
+                                    </span>
+                                    <span class="badge bg-success float-end">
+                                        {{ measurement.contract|default:"Sem contrato" }}
+                                    </span>
                                 </div>
                             </div>
                         {% endfor %}

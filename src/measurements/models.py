@@ -74,7 +74,7 @@ class MeasurementStatus(models.TextChoices):
 
 class Measurement(models.Model):
     name = models.CharField(max_length=255)
-    contract = models.CharField(max_length=255, blank=True, null=True)  # substituído por campo simples
+    contract = models.CharField(max_length=255, blank=True, null=True)  
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
 
@@ -97,3 +97,17 @@ class Measurement(models.Model):
 
     def __str__(self):
         return self.name
+
+    
+
+class MeasurementMessage(models.Model):
+    measurement = models.ForeignKey("Measurement", on_delete=models.CASCADE, related_name="messages")
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.user.name}: {self.message[:30]}"
