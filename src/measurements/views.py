@@ -1,46 +1,30 @@
+import os
+from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import CreateUserForm, CustomAuthenticationForm, MeasurementForm, MeasurementMessageForm
-from .decorators import unauthenticated_user, allowed_users
-from .models import User, Measurement, MeasurementStatus
+from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from datetime import date
-import json
-import os
+from .forms import MeasurementForm
+from .decorators import group_required
+from .models import Measurement, MeasurementStatus
 
 
-
-@unauthenticated_user
-def register(request):
-    if request.method == "POST":
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, "Usuário criado com sucesso!")
-            login(request, user)
-            return redirect("home")
-    else:
-        form = CreateUserForm()
-    return render(request, "measurements/register.html", {"form": form})
-
-
-@unauthenticated_user
 def login_view(request):
     if request.method == "POST":
-        form = CustomAuthenticationForm(request, data=request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect("home")
+            return redirect("redirect_after_login")
         else:
             messages.error(request, "Login ou senha inválidos.")
     else:
-        form = CustomAuthenticationForm()
+        form = AuthenticationForm()
     return render(request, "measurements/login.html", {"form": form})
 
 
@@ -48,6 +32,20 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'Você saiu da sua conta.')
     return redirect('login')
+
+
+def redirect_after_login(request):
+    user = request.user
+    if user.groups.filter(name='Director').exists():
+        return redirect('manager')
+    elif user.groups.filter(name='Manager').exists():
+        return redirect('manager')
+    elif user.groups.filter(name='Engineer').exists():
+        return redirect('engineer')
+    elif user.groups.filter(name='EngineerAssistant').exists():
+        return redirect('engineer')
+    else:
+        return redirect('home')
 
 
 @login_required
@@ -83,20 +81,17 @@ def create_measurement(request):
 
     return render(request, "measurements/create_measurement.html", {"form": form})
 
-@login_required
-def manager(request):
-    return render(request, 'measurements/manager.html')
 
 
 @login_required
-@allowed_users(allowed_roles=["Engenheiro"])
+@group_required(['Engineer', 'EngineerAssistant'])
 def engineer(request):
     return render(request, 'measurements/engineer.html')
 
 
 @login_required
-@allowed_users(allowed_roles=["Gerente"])
-def dashboard(request):
+@group_required(['Manager', 'Director'])
+def manager(request):
     return render(request, 'measurements/dashboard.html')
 
 
@@ -104,11 +99,11 @@ def dashboard(request):
 def board(request):
     return render(request, 'measurements/board.html')
 
+
 @login_required
 def view_measurement(request, pk):
     measurement = get_object_or_404(Measurement, pk=pk)
     from .forms import MeasurementMessageForm
-    from .models import MeasurementMessage
 
     # Trata envio de nova mensagem
     if request.method == "POST":
@@ -130,6 +125,7 @@ def view_measurement(request, pk):
         "messages_list": messages_list,
     }
     return render(request, "measurements/view_measurement.html", context)
+
 
 @login_required
 def edit_measurement(request, pk):
@@ -170,6 +166,7 @@ def edit_measurement(request, pk):
         'attachment_filename': attachment_filename,
     })
 
+
 @login_required
 def delete_measurement(request, pk):
     measurement = Measurement.objects.get(pk=pk)
@@ -179,6 +176,7 @@ def delete_measurement(request, pk):
         return redirect("home")
     
     return render(request, "measurements/confirm_delete.html", {"measurement": measurement})
+
 
 @csrf_exempt
 def ckeditor_upload(request):

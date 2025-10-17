@@ -71,9 +71,9 @@ CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/redirect/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -86,8 +86,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-AUTH_USER_MODEL = "measurements.User"
 
 ROOT_URLCONF = 'core.urls'
 
