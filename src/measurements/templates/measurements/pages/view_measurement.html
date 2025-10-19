@@ -45,7 +45,7 @@
             {% if messages_list %}
                 {% for msg in messages_list %}
                     <div class="mb-2">
-                        <strong>{{ msg.user.name }}</strong>
+                        <strong>{{ msg.user.first_name }} {{ msg.user.last_name }}</strong>
                         <small class="text-muted">— {{ msg.created_at|date:"d/m/Y H:i" }}</small>
                         <p class="mb-1">{{ msg.message|linebreaksbr }}</p>
                         <hr class="my-1">

@@ -25,7 +25,7 @@ def login_view(request):
             messages.error(request, "Login ou senha inválidos.")
     else:
         form = AuthenticationForm()
-    return render(request, "measurements/login.html", {"form": form})
+    return render(request, "measurements/pages/login.html", {"form": form})
 
 
 def logout_view(request):
@@ -61,7 +61,7 @@ def home(request):
         "diretor_meds": diretor_meds,
         "finished_meds": finished_meds,
     }
-    return render(request, "measurements/home.html", context)
+    return render(request, "measurements/pages/home.html", context)
 
 
 @login_required
@@ -79,25 +79,20 @@ def create_measurement(request):
     else:
         form = MeasurementForm()
 
-    return render(request, "measurements/create_measurement.html", {"form": form})
+    return render(request, "measurements/pages/create_measurement.html", {"form": form})
 
 
 
 @login_required
 @group_required(['Engineer', 'EngineerAssistant'])
 def engineer(request):
-    return render(request, 'measurements/engineer.html')
+    return render(request, 'measurements/pages/engineer.html')
 
 
 @login_required
 @group_required(['Manager', 'Director'])
 def manager(request):
-    return render(request, 'measurements/dashboard.html')
-
-
-@login_required
-def board(request):
-    return render(request, 'measurements/board.html')
+    return render(request, 'measurements/pages/dashboard.html')
 
 
 @login_required
@@ -124,7 +119,7 @@ def view_measurement(request, pk):
         "form": form,
         "messages_list": messages_list,
     }
-    return render(request, "measurements/view_measurement.html", context)
+    return render(request, "measurements/pages/view_measurement.html", context)
 
 
 @login_required
@@ -160,7 +155,7 @@ def edit_measurement(request, pk):
     else:
         form = MeasurementForm(instance=measurement)
 
-    return render(request, 'measurements/edit_measurement.html', {
+    return render(request, 'measurements/pages/edit_measurement.html', {
         'form': form,
         'measurement': measurement,
         'attachment_filename': attachment_filename,
@@ -175,7 +170,7 @@ def delete_measurement(request, pk):
         messages.success(request, "Medição excluída com sucesso!")
         return redirect("home")
     
-    return render(request, "measurements/confirm_delete.html", {"measurement": measurement})
+    return render(request, "measurements/pages/confirm_delete.html", {"measurement": measurement})
 
 
 @csrf_exempt

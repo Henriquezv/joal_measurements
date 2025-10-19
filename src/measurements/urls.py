@@ -12,7 +12,6 @@ urlpatterns = [
 
     path('manager/', views.manager, name='manager'),
     path('engineer/', views.engineer, name='engineer'),
-    path('board/', views.board, name='board'),
     
     path('create_measurement/', views.create_measurement, name='create_measurement'),
     path("measurement/<int:pk>/", views.view_measurement, name="view_measurement"),
