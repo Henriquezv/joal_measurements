@@ -20,4 +20,5 @@ urlpatterns = [
     path("measurement/<int:pk>/approve/", views.approve_measurement, name="approve_measurement"),
     path("measurement/<int:pk>/reject/", views.reject_measurement, name="reject_measurement"),
     path("ckeditor/upload/", views.ckeditor_upload, name="ckeditor_upload"),
+    path("generate-email/<int:measurement_id>/", views.generate_email, name="generate_email"),
 ]

@@ -10,6 +10,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
+from django.utils.html import strip_tags
+from django.urls import reverse
+from django.conf import settings
+from urllib.parse import quote
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+
+
 from .forms import MeasurementForm, MeasurementMessageForm
 from .decorators import group_required
 from .models import Measurement, MeasurementStatus, MeasurementMessage
@@ -235,3 +244,27 @@ def ckeditor_upload(request):
             "url": file_url
         })
     return JsonResponse({"error": "Invalid upload request"}, status=400)
+
+
+@login_required
+def generate_email(request, measurement_id):
+    measurement = get_object_or_404(Measurement, id=measurement_id)
+    
+    subject = f"Medição {measurement.id} - {measurement.created_by.get_full_name()}"
+    recipient = [measurement.created_by.email]
+
+    html_content = render_to_string('measurements/pages/email_measurement.html', {
+        'measurement': measurement,
+    })
+
+    email = EmailMessage(
+        subject=subject,
+        body=html_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=recipient,
+    )
+    email.content_subtype = 'html'
+    email.send()
+
+    messages.success(request, "E-mail enviado com sucesso!")
+    return redirect('view_measurement', pk=measurement.id)
