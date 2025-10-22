@@ -50,6 +50,13 @@
                 {% endif %}
             </div>
             <div class="col-md-4 mb-3">
+                {{ form.discounts.label_tag }}
+                {{ form.discounts }}
+                {% if form.discounts.errors %}
+                    <div class="text-danger small">{{ form.discounts.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 mb-3">
                 {{ form.final_value.label_tag }}
                 {{ form.final_value }}
                 {% if form.final_value.errors %}

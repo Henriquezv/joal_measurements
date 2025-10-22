@@ -64,6 +64,38 @@
         </div>
     </div>
     
+    {% if can_approve or can_reject %}
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        {% if can_reject %}
+        <form method="post" action="{% url 'reject_measurement' measurement.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-x-circle"></i> Rejeitar
+            </button>
+        </form>
+        {% endif %}
+        {% if can_approve %}
+        <form method="post" action="{% url 'approve_measurement' measurement.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i>
+                {% if next_status == 'PendingManagerApproval' %}
+                    Enviar para aprovação do gerente
+                {% elif next_status == 'PendingDirectorApproval' %}
+                    Enviar para aprovação do diretor
+                {% elif next_status == 'Finished' %}
+                    Liberar medição
+                {% else %}
+                    Aprovar
+                {% endif %}
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+
+
+
     <div class="mt-4 text-end">
         <a href="{% url 'home' %}" class="btn btn-secondary">Voltar</a>
     </div>

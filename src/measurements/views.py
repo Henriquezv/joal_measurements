@@ -5,13 +5,14 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import Group
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from .forms import MeasurementForm
+from .forms import MeasurementForm, MeasurementMessageForm
 from .decorators import group_required
-from .models import Measurement, MeasurementStatus
+from .models import Measurement, MeasurementStatus, MeasurementMessage
 
 
 def login_view(request):
@@ -98,29 +99,79 @@ def manager(request):
 @login_required
 def view_measurement(request, pk):
     measurement = get_object_or_404(Measurement, pk=pk)
-    from .forms import MeasurementMessageForm
+    messages_list = measurement.messages.all()
+    form = MeasurementMessageForm(request.POST or None)
 
-    # Trata envio de nova mensagem
-    if request.method == "POST":
-        form = MeasurementMessageForm(request.POST)
-        if form.is_valid():
-            msg = form.save(commit=False)
-            msg.measurement = measurement
-            msg.user = request.user
-            msg.save()
-            return redirect("view_measurement", pk=pk)
-    else:
-        form = MeasurementMessageForm()
+    if request.method == "POST" and form.is_valid():
+        msg = form.save(commit=False)
+        msg.user = request.user
+        msg.measurement = measurement
+        msg.save()
+        return redirect("view_measurement", pk=measurement.pk)
 
-    messages_list = measurement.messages.select_related("user").all()
+    # Determina o grupo do usuário logado
+    user_groups = request.user.groups.values_list("name", flat=True)
+
+    # Define permissões para botões de aprovação/reprovação
+    can_approve = can_reject = False
+    next_status = None
+
+    if measurement.status == MeasurementStatus.IN_PROGRESS and "Engineer" in user_groups:
+        can_approve = True
+        next_status = MeasurementStatus.PENDING_MANAGER
+
+    elif measurement.status == MeasurementStatus.PENDING_MANAGER and "Manager" in user_groups:
+        can_approve = can_reject = True
+        next_status = MeasurementStatus.PENDING_DIRECTOR
+
+    elif measurement.status == MeasurementStatus.PENDING_DIRECTOR and "Director" in user_groups:
+        can_approve = can_reject = True
+        next_status = MeasurementStatus.FINISHED
 
     context = {
         "measurement": measurement,
-        "form": form,
         "messages_list": messages_list,
+        "form": form,
+        "can_approve": can_approve,
+        "can_reject": can_reject,
+        "next_status": next_status,
     }
     return render(request, "measurements/pages/view_measurement.html", context)
 
+@login_required
+def approve_measurement(request, pk):
+    measurement = get_object_or_404(Measurement, pk=pk)
+    user_groups = request.user.groups.values_list("name", flat=True)
+
+    if measurement.status == MeasurementStatus.IN_PROGRESS and "Engineer" in user_groups:
+        measurement.status = MeasurementStatus.PENDING_MANAGER
+    elif measurement.status == MeasurementStatus.PENDING_MANAGER and "Manager" in user_groups:
+        measurement.status = MeasurementStatus.PENDING_DIRECTOR
+    elif measurement.status == MeasurementStatus.PENDING_DIRECTOR and "Director" in user_groups:
+        measurement.status = MeasurementStatus.FINISHED
+    else:
+        messages.error(request, "Você não tem permissão para aprovar esta medição.")
+        return redirect("view_measurement", pk=pk)
+
+    measurement.save()
+    messages.success(request, "Medição aprovada com sucesso!")
+    return redirect("view_measurement", pk=pk)
+
+
+@login_required
+def reject_measurement(request, pk):
+    measurement = get_object_or_404(Measurement, pk=pk)
+    user_groups = request.user.groups.values_list("name", flat=True)
+
+    if ((measurement.status == MeasurementStatus.PENDING_MANAGER and "Manager" in user_groups)
+        or (measurement.status == MeasurementStatus.PENDING_DIRECTOR and "Director" in user_groups)):
+        measurement.status = MeasurementStatus.IN_PROGRESS
+        measurement.save()
+        messages.warning(request, "Medição rejeitada e devolvida ao engenheiro.")
+    else:
+        messages.error(request, "Você não tem permissão para rejeitar esta medição.")
+
+    return redirect("view_measurement", pk=pk)
 
 @login_required
 def edit_measurement(request, pk):
