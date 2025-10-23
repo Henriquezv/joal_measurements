@@ -1,23 +1,8 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 
-
-def unauthenticated_user(view_func):
-    def wrapper_func(request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('home')
-        else:
-            return view_func(request, *args, **kwargs)
-    return wrapper_func
-
-
-def allowed_users(allowed_roles=[]):
-    def decorator(view_func):
-        def wrapper_func(request, *args, **kwargs):
-            if request.user.company_role in allowed_roles:
-                return view_func(request, *args, **kwargs)
-            messages.error(request, "Você não está autorizado a acessar esta página.")
-            return redirect('home')
-        return wrapper_func
-    return decorator
+def group_required(group_name: str | list[str]):
+    def in_group(user):
+        if isinstance(group_name, list):
+            return user.is_authenticated and any(user.groups.filter(name=grp).exists() for grp in group_name)
+        return user.is_authenticated and user.groups.filter(name=group_name).exists()
+    return user_passes_test(in_group)

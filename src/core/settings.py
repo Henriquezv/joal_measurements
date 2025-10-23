@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,14 +43,47 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ckeditor_5',
+    'corsheaders',
+    'django_extensions',
     'measurements',
 ]
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/'   
-LOGOUT_REDIRECT_URL = 'login'
+CKEDITOR_5_UPLOAD_PATH = "uploads/"
+CKEDITOR_5_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_5_IMAGE_BACKEND = "pillow"
+CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            {'name': 'styles', 'items': ['heading', '|', 'bold', 'italic', 'underline', 'link']},
+            {'name': 'paragraph', 'items': ['bulletedList', 'numberedList', 'blockQuote', '|', 'outdent', 'indent']},
+            {'name': 'insert', 'items': ['uploadImage', 'insertTable', 'mediaEmbed', '|', 'undo', 'redo']},
+        ],
+        'image': {
+            'toolbar': ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'],
+        },
+        'table': {
+            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells']
+        },
+        'height': 400,
+        'width': '100%',
+    }
+}
+
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/redirect/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,14 +93,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-AUTH_USER_MODEL = "measurements.User"
-
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / "base_templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,6 +127,8 @@ DATABASES = {
     }
 }
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -132,14 +167,27 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-# /data/web/static
-STATIC_ROOT = DATA_DIR / 'static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'base_static',
+]
 
-MEDIA_URL = '/media/'
-# /data/web/media
-MEDIA_ROOT = DATA_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#E-mails
+
+# Carrega variáveis do .env
+load_dotenv(BASE_DIR / ".env")
+
+# Agora substituímos valores fixos pelas variáveis
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
