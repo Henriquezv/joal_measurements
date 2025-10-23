@@ -5,23 +5,18 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import Group
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.http import HttpResponse
-from django.utils.html import strip_tags
-from django.urls import reverse
 from django.conf import settings
-from urllib.parse import quote
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 
 
 from .forms import MeasurementForm, MeasurementMessageForm
 from .decorators import group_required
-from .models import Measurement, MeasurementStatus, MeasurementMessage
+from .models import Measurement, MeasurementStatus
 
 
 def login_view(request):

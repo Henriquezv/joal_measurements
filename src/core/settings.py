@@ -12,15 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR.parent / 'data' / 'web'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
@@ -33,9 +28,7 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,12 +42,12 @@ INSTALLED_APPS = [
     'measurements',
 ]
 
+# CKEditor 5 Configuration
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
 CKEDITOR_5_ALLOW_NONIMAGE_FILES = True
 CKEDITOR_5_IMAGE_BACKEND = "pillow"
 CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
-
 CKEDITOR_5_CONFIGS = {
     'default': {
         'toolbar': [
@@ -167,10 +160,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# /data/web/static
+STATIC_ROOT = DATA_DIR / 'static'
 STATICFILES_DIRS = [
     BASE_DIR / 'base_static',
 ]
+
+MEDIA_URL = '/media/'
+# /data/web/media
+MEDIA_ROOT = DATA_DIR / 'media'
 
 
 # Default primary key field type
@@ -179,11 +177,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #E-mails
-
-# Carrega variáveis do .env
-load_dotenv(BASE_DIR / ".env")
-
-# Agora substituímos valores fixos pelas variáveis
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
