@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -12,6 +13,8 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from email.mime.image import MIMEImage
+from django.contrib.sites.models import Site
 
 
 from .forms import MeasurementForm, MeasurementMessageForm
@@ -51,7 +54,6 @@ def redirect_after_login(request):
         return redirect('engineer')
     else:
         return redirect('home')
-
 
 @login_required
 def home(request):
@@ -199,7 +201,17 @@ def edit_measurement(request, pk):
         # submeter edição (inclui arquivos)
         form = MeasurementForm(request.POST, request.FILES, instance=measurement)
         if form.is_valid():
-            form.save()
+            updated = form.save(commit=False)
+            # mantém data de pagamento se não foi alterada
+            if not form.cleaned_data.get("payment_date"):
+                updated.payment_date = measurement.payment_date
+            else:
+                form = MeasurementForm(instance=measurement)
+                # força valor inicial no campo payment_date
+                if measurement.payment_date:
+                    form.fields['payment_date'].initial = measurement.payment_date
+            updated.final_value = form.cleaned_data["final_value"]
+            updated.save()
             messages.success(request, "Medição atualizada com sucesso.")
             return redirect('view_measurement', pk=measurement.pk)
         else:
@@ -240,17 +252,30 @@ def ckeditor_upload(request):
         })
     return JsonResponse({"error": "Invalid upload request"}, status=400)
 
+def get_absolute_content(content):
+    """
+    Substitui todos os src relativos de imagens (/media/...) por URLs absolutas.
+    """
+    domain = getattr(settings, 'DOMAIN_NAME', '127.0.0.1:8000')
+    pattern = r'src=(["\'])/media/(.*?)\1'  # pega src="/media/..." ou src='/media/...'
+    
+    return re.sub(pattern, f'src="http://{domain}/media/\\2"', content)
+
 
 @login_required
 def generate_email(request, measurement_id):
     measurement = get_object_or_404(Measurement, id=measurement_id)
-    
+
     subject = f"Medição {measurement.id} - {measurement.created_by.get_full_name()}"
-    recipient = [measurement.created_by.email]
+    recipient = [request.user.email]
 
     html_content = render_to_string('measurements/pages/email_measurement.html', {
         'measurement': measurement,
     })
+
+    # Detecta imagens no HTML
+    img_pattern = r'src="(/media/[^"]+)"'
+    images = re.findall(img_pattern, html_content)
 
     email = EmailMessage(
         subject=subject,
@@ -259,7 +284,31 @@ def generate_email(request, measurement_id):
         to=recipient,
     )
     email.content_subtype = 'html'
-    email.send()
 
-    messages.success(request, "E-mail enviado com sucesso!")
+    # Substitui src por cid e adiciona como anexos inline
+    for i, img_url in enumerate(images):
+        # Caminho físico da imagem
+        img_path = os.path.join(settings.MEDIA_ROOT, img_url.replace('/media/', '', 1))
+        if os.path.exists(img_path):
+            with open(img_path, 'rb') as f:
+                img_data = f.read()
+            mime_img = MIMEImage(img_data)
+            cid = f'image{i}'
+            mime_img.add_header('Content-ID', f'<{cid}>')
+            mime_img.add_header('Content-Disposition', 'inline', filename=os.path.basename(img_path))
+            email.attach(mime_img)
+            # Substitui src no HTML
+            html_content = html_content.replace(img_url, f'cid:{cid}')
+
+    # Atualiza o corpo do e-mail com srcs cid
+    email.body = html_content
+
+    # Anexos da medição (PDFs, etc.)
+    if measurement.attachment:
+        email.attach_file(measurement.attachment.path)
+
+    email.send()
+    messages.success(request, f"E-mail enviado com sucesso para {request.user.email}!")
+
     return redirect('view_measurement', pk=measurement.id)
+

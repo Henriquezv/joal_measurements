@@ -126,4 +126,13 @@ ClassicEditor
     })
     .catch(error => console.error(error));
 </script>
+
+<script>
+document.querySelector('#id_value').addEventListener('input', function(e){
+    let val = parseFloat(this.value).toFixed(2);
+    if(!isNaN(val)){
+        this.value = val;
+    }
+});
+</script>
 {% endblock %}

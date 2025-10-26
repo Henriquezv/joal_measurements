@@ -22,3 +22,4 @@ urlpatterns = [
     path("ckeditor/upload/", views.ckeditor_upload, name="ckeditor_upload"),
     path("generate-email/<int:measurement_id>/", views.generate_email, name="generate_email"),
 ]
+

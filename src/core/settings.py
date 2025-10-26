@@ -36,11 +36,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_ckeditor_5',
     'corsheaders',
     'django_extensions',
     'measurements',
 ]
+
+SITE_ID = 1
+
+# Quando o site não existe no DB, podemos criar dinamicamente no startup
+DOMAIN_NAME = os.getenv("DOMAIN_NAME", "127.0.0.1:8000")
 
 # CKEditor 5 Configuration
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
