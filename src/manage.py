@@ -2,6 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from dotenv import load_dotenv
+from core.settings import DEV_ENV_FILE, APP_ENV
+
+
+if APP_ENV == "local_dev":
+    load_dotenv(DEV_ENV_FILE)
 
 
 def main():
