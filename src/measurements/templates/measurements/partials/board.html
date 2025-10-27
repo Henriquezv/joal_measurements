@@ -5,8 +5,8 @@
         <!-- Coluna Engenheiro -->
         <div class="col-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span>Aprovação Engenheiro</span>
+                <div class="card-header col-in-progress text-white d-flex justify-content-between align-items-center">
+                    <span><h6>Aprovação Engenheiro</h6></span>
                     <a class="btn btn-light btn-sm" href="{% url 'create_measurement' %}">+ Nova</a>
                 </div>
                 <div class="card-body" style="min-height: 400px;">
@@ -32,8 +32,8 @@
         <!-- Coluna Gerente -->
         <div class="col-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white text-center">
-                    Aprovação Gerente
+                <div class="card-header col-pending-manager text-white text-center">
+                    <h6>Aprovação Gerente</h6>
                 </div>
                 <div class="card-body" style="min-height: 400px;">
                     {% if gerente_meds %}
@@ -58,8 +58,8 @@
         <!-- Coluna Diretor -->
         <div class="col-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark text-center">
-                    Aprovação Diretor
+                <div class="card-header col-pending-director text-white text-center">
+                    <h6>Aprovação Diretor</h6>
                 </div>
                 <div class="card-body" style="min-height: 400px;">
                     {% if diretor_meds %}
@@ -84,8 +84,8 @@
         <!-- Coluna Liberado -->
         <div class="col-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white text-center">
-                    Liberado
+                <div class="card-header col-finished text-white text-center">
+                    <h6>Liberado</h6>
                 </div>
                 <div class="card-body" style="min-height: 400px;">
                     {% if finished_meds %}

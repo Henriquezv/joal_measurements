@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from email.mime.image import MIMEImage
 from django.contrib.sites.models import Site
+from django.db.models import Sum
 
 
 from .forms import MeasurementForm, MeasurementMessageForm
@@ -45,13 +46,13 @@ def logout_view(request):
 def redirect_after_login(request):
     user = request.user
     if user.groups.filter(name='Director').exists():
-        return redirect('manager')
+        return redirect('home')
     elif user.groups.filter(name='Manager').exists():
-        return redirect('manager')
+        return redirect('home')
     elif user.groups.filter(name='Engineer').exists():
-        return redirect('engineer')
+        return redirect('home')
     elif user.groups.filter(name='EngineerAssistant').exists():
-        return redirect('engineer')
+        return redirect('home')
     else:
         return redirect('home')
 
@@ -70,6 +71,17 @@ def home(request):
     }
     return render(request, "measurements/pages/home.html", context)
 
+@login_required
+@group_required(['Manager', 'Director'])
+def dashboard(request):
+    data_pagamento = (
+        Measurement.objects
+        .exclude(payment_date__isnull=True)
+        .values('payment_date')
+        .annotate(total=Sum('final_value'))
+        .order_by('payment_date')
+    )
+    return render(request, 'measurements/pages/dashboard.html', {'data_pagamento': data_pagamento})
 
 @login_required
 def create_measurement(request):
@@ -183,13 +195,10 @@ def reject_measurement(request, pk):
 def edit_measurement(request, pk):
     measurement = get_object_or_404(Measurement, pk=pk)
 
-    # calcula nome amigável do anexo (basename)
-    attachment_filename = None
-    if measurement.attachment:
-        attachment_filename = os.path.basename(measurement.attachment.name)
+    # nome amigável do anexo
+    attachment_filename = os.path.basename(measurement.attachment.name) if measurement.attachment else None
 
     if request.method == 'POST':
-        # botão "Remover anexo" -> trata e volta para a mesma página de edição
         if 'remove_attachment' in request.POST:
             if measurement.attachment:
                 measurement.attachment.delete(save=False)
@@ -198,28 +207,17 @@ def edit_measurement(request, pk):
                 messages.success(request, "Anexo removido com sucesso.")
             return redirect('edit_measurement', pk=pk)
 
-        # submeter edição (inclui arquivos)
         form = MeasurementForm(request.POST, request.FILES, instance=measurement)
         if form.is_valid():
             updated = form.save(commit=False)
-            # mantém data de pagamento se não foi alterada
-            if not form.cleaned_data.get("payment_date"):
-                updated.payment_date = measurement.payment_date
-            else:
-                form = MeasurementForm(instance=measurement)
-                # força valor inicial no campo payment_date
-                if measurement.payment_date:
-                    form.fields['payment_date'].initial = measurement.payment_date
-            updated.final_value = form.cleaned_data["final_value"]
+            updated.payment_date = form.cleaned_data.get("payment_date") or measurement.payment_date
             updated.save()
             messages.success(request, "Medição atualizada com sucesso.")
             return redirect('view_measurement', pk=measurement.pk)
         else:
-            # se invalid, recalcula nome do anexo para exibir novamente
-            if measurement.attachment:
-                attachment_filename = os.path.basename(measurement.attachment.name)
             messages.error(request, "Erros no formulário. Verifique os campos.")
     else:
+        # carrega a data existente no formulário
         form = MeasurementForm(instance=measurement)
 
     return render(request, 'measurements/pages/edit_measurement.html', {
@@ -311,4 +309,20 @@ def generate_email(request, measurement_id):
     messages.success(request, f"E-mail enviado com sucesso para {request.user.email}!")
 
     return redirect('view_measurement', pk=measurement.id)
+
+@login_required
+def delete_message(request, pk):
+    from .models import MeasurementMessage
+
+    message_obj = get_object_or_404(MeasurementMessage, pk=pk)
+    measurement = message_obj.measurement
+
+    # apenas gerentes podem excluir
+    if not request.user.groups.filter(name="Manager").exists():
+        messages.error(request, "Você não tem permissão para excluir mensagens.")
+        return redirect("view_measurement", pk=measurement.pk)
+
+    message_obj.delete()
+    messages.success(request, "Comentário excluído com sucesso.")
+    return redirect("view_measurement", pk=measurement.pk)
 

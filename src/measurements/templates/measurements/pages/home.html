@@ -2,7 +2,34 @@
 
 {% block content %}
 
+<style>
+.board-column {
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    font-weight: bold;
+}
+
+.col-in-progress {
+    background-color: #007bff; /* azul */
+}
+
+.col-pending-manager {
+    background-color: #ed3948; /* amarelo */
+}
+
+.col-pending-director {
+    background-color: #beb65c; /* vermelho */
+}
+
+.col-finished {
+    background-color: #28a745; /* verde */
+}
+</style>
+
 {% include 'measurements/partials/board.html' %}
+
+
 
 {% endblock %}
 

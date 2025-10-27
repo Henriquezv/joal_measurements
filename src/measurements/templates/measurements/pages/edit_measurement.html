@@ -110,6 +110,19 @@
         </div>
     </form>
 </div>
+
+<script>
+function calcularValorFinal() {
+    const valor = parseFloat(document.querySelector('#id_value').value) || 0;
+    const desconto = parseFloat(document.querySelector('#id_discounts').value) || 0;
+    const final = valor - desconto;
+    document.querySelector('#id_final_value').value = final.toFixed(2);
+}
+
+document.querySelector('#id_value').addEventListener('input', calcularValorFinal);
+document.querySelector('#id_discounts').addEventListener('input', calcularValorFinal);
+</script>
+
 {% endblock %}
 
 {% block extra_js %}

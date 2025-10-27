@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('home/', views.home),
+    path("dashboard/", views.dashboard, name="dashboard"),
 
     path('login/', views.login_view, name='login'),
     path('redirect/', views.redirect_after_login, name='redirect_after_login'),
@@ -19,6 +20,7 @@ urlpatterns = [
     path("measurement/<int:pk>/delete/", views.delete_measurement, name="delete_measurement"),
     path("measurement/<int:pk>/approve/", views.approve_measurement, name="approve_measurement"),
     path("measurement/<int:pk>/reject/", views.reject_measurement, name="reject_measurement"),
+    path("message/<int:pk>/delete/", views.delete_message, name="delete_message"),
     path("ckeditor/upload/", views.ckeditor_upload, name="ckeditor_upload"),
     path("generate-email/<int:measurement_id>/", views.generate_email, name="generate_email"),
 ]
