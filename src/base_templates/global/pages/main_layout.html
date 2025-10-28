@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,49 +7,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RB Software{% endblock %}</title>
 
-    <!-- Bootstrap CSS (sem integrity para evitar bloqueio) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet"
           crossorigin="anonymous">
 
     {% block extra_css %}
-
-<style>
-html, body {
-    height: 100%;
-}
-body {
-    display: flex;
-    flex-direction: column;
-}
-main.container {
-    flex: 1;
-}
-footer {
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-}
-</style>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        main.container {
+            flex: 1;
+        }
+        footer {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
     {% endblock %}
 </head>
 <body>
-    {% include 'global/partials/navbar.html' %}
+    {% if request.resolver_match.url_name != 'login' %}
+        {% include 'global/partials/navbar.html' %}
+    {% endif %}
 
-    <main class="container mt-4">
+    <main class="{% if request.resolver_match.url_name == 'login' %}p-0 m-0 w-100{% else %}container mt-4{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
-    {% include 'global/partials/footer.html' %}
+    {% if request.resolver_match.url_name != 'login' %}
+        {% include 'global/partials/footer.html' %}
+    {% endif %}
 
-    <!-- jQuery e Bootstrap JS (sem integrity) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
-    <!-- CKEditor e scripts locais -->
     <script src="{% static 'django_ckeditor_5/dist/bundle.js' %}"></script>
     <script src="{% static 'global/app.js' %}"></script>
-
     {% block extra_js %}{% endblock %}
 </body>
 </html>

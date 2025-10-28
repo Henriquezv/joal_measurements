@@ -20,7 +20,7 @@
       </ul>
 
       <div class="d-flex align-items-center">
-        <span class="text-light me-3">Olá, <strong>{{ request.user }}</strong></span>
+        <span class="text-light me-3">Olá, <strong>{{ request.user.first_name|default:request.user.username }}</strong></span>
         <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
       </div>
     </div>
