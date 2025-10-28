@@ -134,17 +134,37 @@ def view_measurement(request, pk):
     can_approve = can_reject = False
     next_status = None
 
+    can_delete_comments = "Manager" in user_groups or "Director" in user_groups
+
+    # Engenheiro — só aprova o primeiro passo
     if measurement.status == MeasurementStatus.IN_PROGRESS and "Engineer" in user_groups:
         can_approve = True
         next_status = MeasurementStatus.PENDING_MANAGER
 
-    elif measurement.status == MeasurementStatus.PENDING_MANAGER and "Manager" in user_groups:
+    # Gerente — pode aprovar medições em progresso (engenheiro) ou pendentes de gerente
+    elif ("Manager" in user_groups) and measurement.status in [
+        MeasurementStatus.IN_PROGRESS,
+        MeasurementStatus.PENDING_MANAGER,
+    ]:
         can_approve = can_reject = True
-        next_status = MeasurementStatus.PENDING_DIRECTOR
+        next_status = (
+            MeasurementStatus.PENDING_DIRECTOR
+            if measurement.status == MeasurementStatus.PENDING_MANAGER
+            else MeasurementStatus.PENDING_DIRECTOR
+        )
 
-    elif measurement.status == MeasurementStatus.PENDING_DIRECTOR and "Director" in user_groups:
+    # Diretor — pode aprovar qualquer estágio anterior
+    elif ("Director" in user_groups) and measurement.status in [
+        MeasurementStatus.IN_PROGRESS,
+        MeasurementStatus.PENDING_MANAGER,
+        MeasurementStatus.PENDING_DIRECTOR,
+    ]:
         can_approve = can_reject = True
-        next_status = MeasurementStatus.FINISHED
+        next_status = (
+            MeasurementStatus.FINISHED
+            if measurement.status == MeasurementStatus.PENDING_DIRECTOR
+            else MeasurementStatus.FINISHED
+        )
 
     context = {
         "measurement": measurement,
@@ -153,6 +173,7 @@ def view_measurement(request, pk):
         "can_approve": can_approve,
         "can_reject": can_reject,
         "next_status": next_status,
+        "can_delete_comments": can_delete_comments,
     }
     return render(request, "measurements/pages/view_measurement.html", context)
 
@@ -161,12 +182,23 @@ def approve_measurement(request, pk):
     measurement = get_object_or_404(Measurement, pk=pk)
     user_groups = request.user.groups.values_list("name", flat=True)
 
+    # Engenheiro só envia para o gerente
     if measurement.status == MeasurementStatus.IN_PROGRESS and "Engineer" in user_groups:
         measurement.status = MeasurementStatus.PENDING_MANAGER
-    elif measurement.status == MeasurementStatus.PENDING_MANAGER and "Manager" in user_groups:
-        measurement.status = MeasurementStatus.PENDING_DIRECTOR
-    elif measurement.status == MeasurementStatus.PENDING_DIRECTOR and "Director" in user_groups:
+
+    # Gerente pode aprovar qualquer coisa até o diretor
+    elif "Manager" in user_groups:
+        if measurement.status == MeasurementStatus.IN_PROGRESS:
+            measurement.status = MeasurementStatus.PENDING_DIRECTOR
+        elif measurement.status == MeasurementStatus.PENDING_MANAGER:
+            measurement.status = MeasurementStatus.PENDING_DIRECTOR
+        elif measurement.status == MeasurementStatus.PENDING_DIRECTOR:
+            measurement.status = MeasurementStatus.FINISHED
+
+    # Diretor pode aprovar tudo direto para "Finalizado"
+    elif "Director" in user_groups:
         measurement.status = MeasurementStatus.FINISHED
+
     else:
         messages.error(request, "Você não tem permissão para aprovar esta medição.")
         return redirect("view_measurement", pk=pk)
@@ -317,8 +349,10 @@ def delete_message(request, pk):
     message_obj = get_object_or_404(MeasurementMessage, pk=pk)
     measurement = message_obj.measurement
 
-    # apenas gerentes podem excluir
-    if not request.user.groups.filter(name="Manager").exists():
+    if not (
+        request.user.groups.filter(name="Manager").exists() or
+        request.user.groups.filter(name="Director").exists()
+    ):
         messages.error(request, "Você não tem permissão para excluir mensagens.")
         return redirect("view_measurement", pk=measurement.pk)
 

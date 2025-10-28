@@ -51,7 +51,7 @@
                             <p class="mb-1">{{ msg.message|linebreaksbr }}</p>
                         </div>
 
-                        {% if request.user.groups.all.0.name == "Manager" %}
+                        {% if can_delete_comments %}
                         <form method="post" action="{% url 'delete_message' msg.pk %}" style="margin-left: 10px;">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger"
