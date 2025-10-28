@@ -1,4 +1,5 @@
 {% extends 'global/pages/main_layout.html' %}
+{% load form_tags %}
 
 {% block title %}Editar Medição{% endblock %}
 
@@ -10,11 +11,10 @@
         {% csrf_token %}
         {{ form.media }}
 
-        {# Mensagens de erro não-campo #}
         {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
-            </div>
+        <div class="alert alert-danger">
+            {{ form.non_field_errors|striptags }}
+        </div>
         {% endif %}
 
         <div class="row">
@@ -146,6 +146,18 @@ document.querySelector('#id_value').addEventListener('input', function(e){
     if(!isNaN(val)){
         this.value = val;
     }
+});
+</script>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e){
+    let requiredFields = ['#id_name', '#id_value'];
+    requiredFields.forEach(function(id){
+        let el = document.querySelector(id);
+        if(el && !el.value){
+            el.classList.add('is-invalid');
+        }
+    });
 });
 </script>
 {% endblock %}

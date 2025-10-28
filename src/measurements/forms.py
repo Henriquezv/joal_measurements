@@ -54,6 +54,24 @@ class MeasurementForm(forms.ModelForm):
         cleaned_data["final_value"] = value - discounts
         return cleaned_data
 
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if not name:
+            raise forms.ValidationError("O nome da medição é obrigatório.")
+        return name
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+        if value is None or value <= 0:
+            raise forms.ValidationError("O valor bruto deve ser maior que zero.")
+        return value
+
+    def clean_final_value(self):
+        final_value = self.cleaned_data.get('final_value')
+        if final_value is not None and final_value < 0:
+            raise forms.ValidationError("O valor final não pode ser negativo.")
+        return final_value
+
 class MeasurementMessageForm(forms.ModelForm):
     class Meta:
         model = MeasurementMessage

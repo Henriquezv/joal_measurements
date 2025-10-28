@@ -62,21 +62,51 @@ CKEDITOR_5_UPLOAD_PATH = "uploads/"
 CKEDITOR_5_ALLOW_NONIMAGE_FILES = True
 CKEDITOR_5_IMAGE_BACKEND = "pillow"
 CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
 CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': [
-            {'name': 'styles', 'items': ['heading', '|', 'bold', 'italic', 'underline', 'link']},
-            {'name': 'paragraph', 'items': ['bulletedList', 'numberedList', 'blockQuote', '|', 'outdent', 'indent']},
-            {'name': 'insert', 'items': ['uploadImage', 'insertTable', 'mediaEmbed', '|', 'undo', 'redo']},
-        ],
+        'toolbar': {
+            'items': [
+                # Básico
+                'heading', '|',
+                'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'code', '|',
+
+                # Alinhamento e parágrafo
+                'alignment', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote', '|',
+
+                # Inserções
+                'link', 'insertTable', 'uploadImage', 'mediaEmbed', 'horizontalLine', 'specialCharacters', '|',
+
+                # Estilo de fonte
+                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+
+                # Undo / Redo
+                'undo', 'redo', '|',
+
+                # Limpar formatação
+                'removeFormat'
+            ],
+            'shouldNotGroupWhenFull': True,  # <- ESSENCIAL para remover os "três pontinhos"
+        },
         'image': {
-            'toolbar': ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'],
+            'toolbar': [
+                'imageTextAlternative',
+                'imageStyle:inline',
+                'imageStyle:block',
+                'imageStyle:side',
+                'toggleImageCaption'
+            ],
         },
         'table': {
-            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells']
+            'contentToolbar': [
+                'tableColumn',
+                'tableRow',
+                'mergeTableCells',
+                'tableCellProperties',
+                'tableProperties'
+            ]
         },
-        'height': 400,
+        'height': 500,
         'width': '100%',
     }
 }

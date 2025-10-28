@@ -1,4 +1,5 @@
 {% extends 'global/pages/main_layout.html' %}
+{% load form_tags %}
 
 {% block title %}Nova Medição{% endblock %}
 
@@ -6,18 +7,31 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">Nova Medição</h2>
 
+
     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
         {{ form.media }}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors|striptags }}
+        </div>
+        {% endif %}
 
         <div class="row">
             <div class="col-md-6 mb-3">
                 {{ form.name.label_tag }}
                 {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="text-danger small">{{ form.name.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-md-6 mb-3">
                 {{ form.contract.label_tag }}
                 {{ form.contract }}
+                {% if form.contract.errors %}
+                    <div class="text-danger small">{{ form.contract.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
@@ -25,10 +39,16 @@
             <div class="col-md-6 mb-3">
                 {{ form.payment_date.label_tag }}
                 {{ form.payment_date }}
+                {% if form.payment_date.errors %}
+                    <div class="text-danger small">{{ form.payment_date.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-md-6 mb-3">
                 {{ form.value.label_tag }}
                 {{ form.value }}
+                {% if form.value.errors %}
+                    <div class="text-danger small">{{ form.value.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
@@ -36,26 +56,41 @@
             <div class="col-md-6 mb-3">
                 {{ form.discounts.label_tag }}
                 {{ form.discounts }}
+                {% if form.discounts.errors %}
+                    <div class="text-danger small">{{ form.discounts.errors }}</div>
+                {% endif %}
             </div>
             <div class="col-md-6 mb-3">
                 {{ form.final_value.label_tag }}
                 {{ form.final_value }}
+                {% if form.final_value.errors %}
+                    <div class="text-danger small">{{ form.final_value.errors }}</div>
+                {% endif %}
             </div>
         </div>
 
         <div class="mb-3">
             {{ form.discounts_detail.label_tag }}
             {{ form.discounts_detail }}
+            {% if form.discounts_detail.errors %}
+                <div class="text-danger small">{{ form.discounts_detail.errors }}</div>
+            {% endif %}
         </div>
 
         <div class="mb-3">
             {{ form.description.label_tag }}
             {{ form.description }}
+            {% if form.description.errors %}
+                <div class="text-danger small">{{ form.description.errors }}</div>
+            {% endif %}
         </div>
 
         <div class="mb-3">
             {{ form.attachment.label_tag }}
             {{ form.attachment }}
+            {% if form.attachment.errors %}
+                <div class="text-danger small">{{ form.attachment.errors }}</div>
+            {% endif %}
         </div>
 
         <div class="d-flex justify-content-end">
@@ -76,7 +111,6 @@ function calcularValorFinal() {
 document.querySelector('#id_value').addEventListener('input', calcularValorFinal);
 document.querySelector('#id_discounts').addEventListener('input', calcularValorFinal);
 </script>
-
 {% endblock %}
 
 {% block extra_css %}
@@ -88,8 +122,6 @@ document.querySelector('#id_discounts').addEventListener('input', calcularValorF
 {% endblock %}
 
 {% block extra_js %}
-
-
 <script>
 ClassicEditor
     .create(document.querySelector('#id_description'), {
@@ -102,5 +134,17 @@ ClassicEditor
         }
     })
     .catch(error => console.error(error));
+</script>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e){
+    let requiredFields = ['#id_name', '#id_value'];
+    requiredFields.forEach(function(id){
+        let el = document.querySelector(id);
+        if(el && !el.value){
+            el.classList.add('is-invalid');
+        }
+    });
+});
 </script>
 {% endblock %}
