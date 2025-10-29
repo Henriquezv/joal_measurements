@@ -15,7 +15,7 @@ python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 if [ "$APP_ENV" = "prod" ]; then
   echo "Running in production environment"
-  python -m gunicorn --bind 0.0.0.0:8000 --workers 4 core.wsgi
+  python -m gunicorn --bind 0.0.0.0:8000 --workers 3 core.wsgi
 else
   echo "Running in development environment"
   python manage.py runserver 0.0.0.0:8000
