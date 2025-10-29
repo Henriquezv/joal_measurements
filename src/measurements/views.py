@@ -58,10 +58,21 @@ def redirect_after_login(request):
 
 @login_required
 def home(request):
-    engenheiro_meds = Measurement.objects.filter(status=MeasurementStatus.IN_PROGRESS)
-    gerente_meds = Measurement.objects.filter(status=MeasurementStatus.PENDING_MANAGER)
-    diretor_meds = Measurement.objects.filter(status=MeasurementStatus.PENDING_DIRECTOR)
-    finished_meds = Measurement.objects.filter(status=MeasurementStatus.FINISHED)
+    engenheiro_meds = Measurement.objects.filter(
+        status=MeasurementStatus.IN_PROGRESS
+    ).order_by('-date_created')  # mais recentes primeiro
+
+    gerente_meds = Measurement.objects.filter(
+        status=MeasurementStatus.PENDING_MANAGER
+    ).order_by('-date_created')
+
+    diretor_meds = Measurement.objects.filter(
+        status=MeasurementStatus.PENDING_DIRECTOR
+    ).order_by('-date_created')
+
+    finished_meds = Measurement.objects.filter(
+        status=MeasurementStatus.FINISHED
+    ).order_by('-date_created')
 
     context = {
         "engenheiro_meds": engenheiro_meds,
@@ -134,7 +145,10 @@ def view_measurement(request, pk):
     can_approve = can_reject = False
     next_status = None
 
-    can_delete_comments = "Manager" in user_groups or "Director" in user_groups
+    can_delete_comments = any(
+        group in ["Engineer", "EngineerAssistant", "Manager", "Director"]
+        for group in user_groups
+    )
 
     # Engenheiro — só aprova o primeiro passo
     if measurement.status == MeasurementStatus.IN_PROGRESS and "Engineer" in user_groups:
@@ -349,10 +363,10 @@ def delete_message(request, pk):
     message_obj = get_object_or_404(MeasurementMessage, pk=pk)
     measurement = message_obj.measurement
 
-    if not (
-        request.user.groups.filter(name="Manager").exists() or
-        request.user.groups.filter(name="Director").exists()
-    ):
+    allowed_groups = ["Engineer", "EngineerAssistant", "Manager", "Director"]
+    user_groups = request.user.groups.values_list("name", flat=True)
+
+    if not any(group in allowed_groups for group in user_groups):
         messages.error(request, "Você não tem permissão para excluir mensagens.")
         return redirect("view_measurement", pk=measurement.pk)
 

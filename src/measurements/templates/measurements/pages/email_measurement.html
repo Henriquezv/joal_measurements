@@ -12,11 +12,11 @@
 <body>
     <h2>{{ measurement.name }}</h2>
     <p><strong>Contrato:</strong> {{ measurement.contract|default:"-" }}</p>
-    <p><strong>Data de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default:"Não definida" }}</p>
+    <p><strong>Previsão de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default:"Não definida" }}</p>
     <p><strong>Valor:</strong> R$ {{ measurement.value|floatformat:2|default:"0,00" }}</p>
     <p><strong>Descontos:</strong> R$ {{ measurement.discounts|floatformat:2|default:"0,00" }}</p>
     <p><strong>Detalhes do Desconto:</strong>{{measurement.discounts_detail|default:"-" }}</p>
-    <p><strong>Valor Final:</strong> R$ {{ measurement.final_value|floatformat:2|default:"0,00" }}</p>
+    <p><strong>Valor Total:</strong> R$ {{ measurement.final_value|floatformat:2|default:"0,00" }}</p>
 
 
     <div class="card">
