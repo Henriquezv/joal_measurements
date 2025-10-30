@@ -35,6 +35,10 @@ ALLOWED_HOSTS = [
     h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',')
     if h.strip()
 ]
+SECURE_PROXY_SSL_HEADER = (
+    h.strip() for h in os.getenv('SECURE_PROXY_SSL_HEADER', '').split(',')
+    if h.strip()
+)
 
 # Application definition
 INSTALLED_APPS = [
