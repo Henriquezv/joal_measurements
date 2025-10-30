@@ -3,11 +3,11 @@
 import os
 import sys
 from dotenv import load_dotenv
-from core.settings import DEV_ENV_FILE, APP_ENV
+from core.settings import LOCAL_DEV_ENV_FILE, APP_ENV
 
 
 if APP_ENV == "local_dev":
-    load_dotenv(DEV_ENV_FILE)
+    load_dotenv(LOCAL_DEV_ENV_FILE)
 
 
 def main():
