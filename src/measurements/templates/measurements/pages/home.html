@@ -1,6 +1,18 @@
 {% extends 'global/pages/main_layout.html' %}
 
 {% block content %}
+<form method="get" class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+    <input type="text" name="q" placeholder="Pesquisar por nome..." 
+           value="{{ search_query }}" class="form-control" style="max-width: 300px;">
+
+    <div class="form-check form-switch d-flex align-items-center">
+        <input class="form-check-input" type="checkbox" id="last30" 
+               name="last30" value="1" {% if filter_30 %}checked{% endif %}>
+        <label class="form-check-label ms-1" for="last30">Últimos 30 dias</label>
+    </div>
+
+    <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+</form>
 
 <style>
 .board-column {

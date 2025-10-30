@@ -56,29 +56,34 @@ def redirect_after_login(request):
     else:
         return redirect('home')
 
+from datetime import timedelta
+
 @login_required
 def home(request):
-    engenheiro_meds = Measurement.objects.filter(
-        status=MeasurementStatus.IN_PROGRESS
-    ).order_by('-date_created')  # mais recentes primeiro
+    search_query = request.GET.get('q', '')
+    filter_30 = request.GET.get('last30', '')
 
-    gerente_meds = Measurement.objects.filter(
-        status=MeasurementStatus.PENDING_MANAGER
-    ).order_by('-date_created')
+    measurements = Measurement.objects.all()
 
-    diretor_meds = Measurement.objects.filter(
-        status=MeasurementStatus.PENDING_DIRECTOR
-    ).order_by('-date_created')
+    if search_query:
+        measurements = measurements.filter(name__icontains=search_query)
 
-    finished_meds = Measurement.objects.filter(
-        status=MeasurementStatus.FINISHED
-    ).order_by('-date_created')
+    if filter_30:
+        last_30_days = date.today() - timedelta(days=30)
+        measurements = measurements.filter(date_created__gte=last_30_days)
+
+    engenheiro_meds = measurements.filter(status=MeasurementStatus.IN_PROGRESS).order_by('-date_created')
+    gerente_meds = measurements.filter(status=MeasurementStatus.PENDING_MANAGER).order_by('-date_created')
+    diretor_meds = measurements.filter(status=MeasurementStatus.PENDING_DIRECTOR).order_by('-date_created')
+    finished_meds = measurements.filter(status=MeasurementStatus.FINISHED).order_by('-date_created')
 
     context = {
         "engenheiro_meds": engenheiro_meds,
         "gerente_meds": gerente_meds,
         "diretor_meds": diretor_meds,
         "finished_meds": finished_meds,
+        "search_query": search_query,
+        "filter_30": filter_30,
     }
     return render(request, "measurements/pages/home.html", context)
 
@@ -373,4 +378,5 @@ def delete_message(request, pk):
     message_obj.delete()
     messages.success(request, "Comentário excluído com sucesso.")
     return redirect("view_measurement", pk=measurement.pk)
+
 

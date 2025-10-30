@@ -1,3 +1,4 @@
+{% load format_filters %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,12 +12,12 @@
 </head>
 <body>
     <h2>{{ measurement.name }}</h2>
-    <p><strong>Contrato:</strong> {{ measurement.contract|default:"-" }}</p>
-    <p><strong>Previsão de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default:"Não definida" }}</p>
-    <p><strong>Valor:</strong> R$ {{ measurement.value|floatformat:2|default:"0,00" }}</p>
-    <p><strong>Descontos:</strong> R$ {{ measurement.discounts|floatformat:2|default:"0,00" }}</p>
-    <p><strong>Detalhes do Desconto:</strong>{{measurement.discounts_detail|default:"-" }}</p>
-    <p><strong>Valor Total:</strong> R$ {{ measurement.final_value|floatformat:2|default:"0,00" }}</p>
+    <p><strong>Contrato:</strong> {{ measurement.contract|default_if_none:"-" }}</p>
+    <p><strong>Previsão de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default_if_none:"Não definida" }}</p>
+    <p><strong>Valor:</strong> R$ {{ measurement.value|money_format|default_if_none:"0,00" }}</p>
+    <p><strong>Descontos:</strong> R$ {{ measurement.discounts|money_format|default_if_none:"0,00" }}</p>
+    <p><strong>Detalhes do Desconto:</strong> {{ measurement.discounts_detail|default_if_none:"-" }}</p>
+    <p><strong>Valor Total:</strong> R$ {{ measurement.final_value|money_format|default_if_none:"0,00" }}</p>
 
 
     <div class="card">

@@ -1,5 +1,6 @@
 {% extends 'global/pages/main_layout.html' %}
 {% block title %}Visualizar Medição{% endblock %}
+{% load format_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -9,15 +10,17 @@
         <strong>Contrato:</strong> {{ measurement.contract|default:"-" }}<br>
         <strong>Data de Criação:</strong> {{ measurement.start_date|date:"d/m/Y" }}<br>
         <strong>Data de Pagamento:</strong> {{ measurement.payment_date|date:"d/m/Y"|default:"Não definida" }}<br>
-        <strong>Valor Desconto:</strong> R$ {{ measurement.discounts|default:"-" }}<br>
+        <strong>Valor Desconto:</strong> R$ {{ measurement.discounts|money_format|default:"-" }}<br>
         <strong>Detalhes do Desconto:</strong> {{ measurement.discounts_detail|default:"-" }}<br>
-        <strong>Valor Final:</strong> R$ {{ measurement.final_value|default:"-" }}
+        <strong>Valor Final:</strong> R$ {{ measurement.final_value|money_format|default:"-" }}
     </div>
 
     <div class="card mb-3">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <strong>Descrição</strong>
+            {% if measurement.status != 'Finished' %}
             <a href="{% url 'edit_measurement' measurement.pk %}" class="btn btn-sm btn-outline-warning">Editar</a>
+            {% endif %}
         </div>
         <div class="card-body">
             {% if measurement.description %}
