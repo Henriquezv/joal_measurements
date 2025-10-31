@@ -27,15 +27,15 @@ SECRET_KEY = SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv("DEBUG", default=0)))
 APP_ENV = os.getenv("APP_ENV", default="local_dev")
-LOCAL_DEV_ENV_FILE = BASE_DIR.parent / ".env.local_dev"
+ENV_FILE = BASE_DIR.parent / ".env"
 if APP_ENV == "local_dev":
-    load_dotenv(LOCAL_DEV_ENV_FILE)
+    load_dotenv(ENV_FILE)
 
 ALLOWED_HOSTS = [
     h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',')
     if h.strip()
 ]
-SECURE_PROXY_SSL_HEADER = (
+SECURE_PROXY_SSL_HEADER = tuple(
     h.strip() for h in os.getenv('SECURE_PROXY_SSL_HEADER', '').split(',')
     if h.strip()
 )
