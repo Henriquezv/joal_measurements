@@ -15,6 +15,7 @@ services:
       - ./.env
     depends_on:
       - psql
+    restart: unless-stopped
   psql:
     container_name: psql
     image: postgres:18-alpine
@@ -22,6 +23,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
+    restart: unless-stopped
   frontend-proxy:
     image: nginx:latest
     ports:
@@ -37,6 +39,7 @@ services:
       - joal_measurements
     environment:
       - APP_ENV=${APP_ENV}
+    restart: unless-stopped
 
 volumes:
   static_volume:
