@@ -6,8 +6,8 @@ Requires=docker.service
 [Service]
 Restart=always
 RestartSec=5
-ExecStart=/usr/bin/docker compose -f /home/ubuntu/myapp/docker-compose.yml up
-ExecStop=/usr/bin/docker compose -f /home/ubuntu/myapp/docker-compose.yml down
+ExecStart=/usr/bin/docker compose -f /home/marchioro/joal_measurements/docker-compose.yml up
+ExecStop=/usr/bin/docker compose -f /home/marchioro/joal_measurements/docker-compose.yml down
 
 [Install]
 WantedBy=multi-user.target
