@@ -90,7 +90,7 @@ CKEDITOR_5_CONFIGS = {
                 # Limpar formatação
                 'removeFormat'
             ],
-            'shouldNotGroupWhenFull': True,  # <- ESSENCIAL para remover os "três pontinhos"
+            'shouldNotGroupWhenFull': True, 
         },
         'image': {
             'toolbar': [

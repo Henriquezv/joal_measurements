@@ -1,6 +1,12 @@
+{% load static %}
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold text-light" href="#">Gestão de Medições</a>
+    <a class="navbar-brand fw-bold text-light d-flex align-items-center" href="#">
+      <img src="{% static 'global/assets/joal.jpg' %}" alt="Logo" 
+           style="height: 35px; width: auto; margin-right: 10px; border-radius: 5px;">
+      Gestão de Medições
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
             data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -20,7 +26,9 @@
       </ul>
 
       <div class="d-flex align-items-center">
-        <span class="text-light me-3">Olá, <strong>{{ request.user.first_name|default:request.user.username }}</strong></span>
+        <span class="text-light me-3">
+          Olá, <strong>{{ request.user.first_name|default:request.user.username }}</strong>
+        </span>
         <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
       </div>
     </div>
