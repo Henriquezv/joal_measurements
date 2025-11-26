@@ -95,10 +95,6 @@ CKEDITOR_5_CONFIGS = {
         'image': {
             'toolbar': [
                 'imageTextAlternative',
-                'imageStyle:inline',
-                'imageStyle:block',
-                'imageStyle:side',
-                'toggleImageCaption'
             ],
         },
         'table': {
