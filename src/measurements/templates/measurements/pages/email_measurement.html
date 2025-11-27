@@ -31,12 +31,10 @@
     <p><strong>Valor Total:</strong> R$ {{ measurement.final_value|money_format|default_if_none:"0,00" }}</p>
 
 
-    <div class="card">
-        <div class="header">Descrição</div>
         <div class="description-content">
             {{ measurement.description|safe }}
         </div>
-    </div>
+
 
     {% if director_approval %}
     <p><strong>Status:</strong> ✅ Aprovado pelo Diretor</p>
