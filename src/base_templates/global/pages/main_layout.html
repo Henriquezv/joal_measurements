@@ -11,25 +11,39 @@
           rel="stylesheet"
           crossorigin="anonymous">
 
-    {% block extra_css %}
-    <style>
-        html, body {
-            height: 100%;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        main.container {
-            flex: 1;
-        }
-        footer {
-            position: sticky;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-    {% endblock %}
+{% block extra_css %}
+<style>
+    html, body {
+        height: 100%;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+    main.container {
+        flex: 1;
+    }
+    footer {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+    }
+
+
+    .ck-content img,
+    .description-content img {
+        max-width: 100%;   /* nunca passa da largura do card */
+        height: auto;      /* mantém a proporção da imagem */
+        display: block;
+    }
+
+    .ck-content figure.image,
+    .description-content figure.image {
+        max-width: 100%;
+        margin: 1rem auto;
+    }
+</style>
+{% endblock %}
 </head>
 <body>
     {% if request.resolver_match.url_name != 'login' %}

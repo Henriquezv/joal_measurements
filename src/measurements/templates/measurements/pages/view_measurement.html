@@ -22,7 +22,7 @@
             <a href="{% url 'edit_measurement' measurement.pk %}" class="btn btn-sm btn-outline-warning">Editar</a>
             {% endif %}
         </div>
-        <div class="card-body">
+        <div class="card-body description-content ck-content">
             {% if measurement.description %}
                 {{ measurement.description|safe }}
             {% else %}
