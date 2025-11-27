@@ -8,6 +8,17 @@
         .card { border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; padding: 10px; }
         .header { background-color: #f7f7f7; padding: 8px; font-weight: bold; }
         .footer { margin-top: 20px; font-size: 0.9em; color: #555; }
+
+        .description-content img {
+            max-width: 100% !important;
+            height: auto !important;
+            display: block;
+        }
+
+        .description-content figure.image {
+            max-width: 100% !important;
+            margin: 1rem auto;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +33,9 @@
 
     <div class="card">
         <div class="header">Descrição</div>
-        <div>{{ measurement.description|safe }}</div>
+        <div class="description-content">
+            {{ measurement.description|safe }}
+        </div>
     </div>
 
     {% if director_approval %}
